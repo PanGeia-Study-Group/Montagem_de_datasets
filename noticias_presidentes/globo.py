@@ -36,7 +36,7 @@ try:
    # Data: //section[@id='content']/div/div/ul/li[2]/div[3]/a/div[2]
 
     #testando nas 60 primeiras notícias
-    for i in range(2,61):
+    for i in range(2,65):
         time.sleep(2)
         #Atualizando os xpaths para caminhar a lista de noticias
         programa_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/div"
@@ -54,42 +54,44 @@ try:
         
         try:
             programa.append(driver.find_element(By.XPATH,programa_xpath).text) 
-            #titulo.append(driver.find_element(By.XPATH,titulo_xpath).text)
-            #descricao.append(driver.find_element(By.XPATH,descricao_xpath).text)
-            #data.append(driver.find_element(By.XPATH,data_xpath ).text)
         except:
             try:
                 programa.append(driver.find_element(By.XPATH,programa_1_xpath).text)
             except:
-                NoSuchElementException
-            NoSuchElementException  
-        
+                NoSuchElementException            
+        NoSuchElementException  
+
+
         try:
             titulo.append(driver.find_element(By.XPATH,titulo_xpath).text)
         except:
             try:
-                programa.append(driver.find_element(By.XPATH,titulo_1_xpath).text)
+                titulo.append(driver.find_element(By.XPATH,titulo_1_xpath).text)
             except:
-                NoSuchElementException            
-            NoSuchElementException
+                NoSuchElementException                    
+        NoSuchElementException
+
         
         try:
             descricao.append(driver.find_element(By.XPATH,descricao_xpath).text)
         except:
             try:
-                programa.append(driver.find_element(By.XPATH,descricao_1_xpath).text)
+                descricao.append(driver.find_element(By.XPATH,descricao_1_xpath).text)
             except:
-                NoSuchElementException            
-            NoSuchElementException
+                NoSuchElementException                    
+        NoSuchElementException
+
 
         try:
             data.append(driver.find_element(By.XPATH,data_xpath).text)
-        except:
+        except:  
             try:
-                programa.append(driver.find_element(By.XPATH,data_1_xpath).text)
+                data.append(driver.find_element(By.XPATH,data_1_xpath).text)
             except:
-                NoSuchElementException            
-            NoSuchElementException
+                NoSuchElementException                      
+        NoSuchElementException
+ 
+
         
         #Como a página atualiza 15 notícias por vez, caso o i seja multiplo de 15, 
         # vou rolar para o fim da página para carregar mais notícias
@@ -100,12 +102,18 @@ try:
 except:
     driver.quit()
 
-df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, descricao, data)), columns = ['Programa', 'Titulo', 'Descricao','Data'])
-print(df_noticias_lula)
 
+df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, descricao, data)), columns = ['Programa', 'Titulo', 'Descricao','Data'])
+print(df_noticias_lula['Titulo'])
+print("Programa: " + len(programa))
+print("Titulo: " + len(titulo))
+print("Descricao: " + len(descricao))
+print("Data: " + len(data))
+print(i)
 
 #### to do / problemas ###
 #1- As vezes a descrição tem mais de um <span>, então seriam 2 xpaths: 
 #  //section[@id='content']/div/div/ul/li[i]/div[3]/a/p/span e //section[@id='content']/div/div/ul/li[i]/div[3]/a/p/span[2] 
 #2- Algumas notícias não têm thumbnail, então possuem uma div a menos. Os xpaths ficariam [...]/li[i]/div[2]/[...]
 #3- As datas que estiverem no formato "há X dias" ou "há X horas" devem ser colocadas no formato "dd/mm/aaaa HHhMM"
+#4- Entrar em cada notícia e buscar o texto do corpo da notícia
