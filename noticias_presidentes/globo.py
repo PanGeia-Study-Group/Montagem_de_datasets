@@ -51,10 +51,11 @@ try:
         data_1_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div[2]"                
         
         
-        
+        #tenta encontrar a notícia assumindo que ela possui o XPATH padrão com thumbnail
         try:
             programa.append(driver.find_element(By.XPATH,programa_xpath).text) 
         except:
+            #se não encontrar, tenta achar a notícia com o XPATH sem thumbnail
             try:
                 programa.append(driver.find_element(By.XPATH,programa_1_xpath).text)
             except:
@@ -105,10 +106,6 @@ except:
 
 df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, descricao, data)), columns = ['Programa', 'Titulo', 'Descricao','Data'])
 print(df_noticias_lula['Titulo'])
-print("Programa: " + len(programa))
-print("Titulo: " + len(titulo))
-print("Descricao: " + len(descricao))
-print("Data: " + len(data))
 print(i)
 
 #### to do / problemas ###
