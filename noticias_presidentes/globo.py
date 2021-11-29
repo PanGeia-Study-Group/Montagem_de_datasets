@@ -34,10 +34,14 @@ try:
    # Título: //section[@id='content']/div/div/ul/li[2]/div[3]/a/div
    # Descrição: //section[@id='content']/div/div/ul/li[2]/div[3]/a/p/span
    # Data: //section[@id='content']/div/div/ul/li[2]/div[3]/a/div[2]
+   # Botão "veja mais": //section[@id='content']/div/div/div/a
 
+    botao_veja_mais_xpath = "//section[@id='content']/div/div/div/a"
     #testando nas 60 primeiras notícias
-    for i in range(2,65):
+    for i in range(2,100):
+
         time.sleep(2)
+
         #Atualizando os xpaths para caminhar a lista de noticias
         programa_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/div"
         titulo_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/div"
@@ -96,8 +100,13 @@ try:
         
         #Como a página atualiza 15 notícias por vez, caso o i seja multiplo de 15, 
         # vou rolar para o fim da página para carregar mais notícias
-        if(i%15 == 0):
+        if(i%15 == 0 and i<60):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(3)
+        elif(i%15 == 0 and i>=60):
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")            
+            botao_veja_mais = driver.find_element(By.XPATH,botao_veja_mais_xpath)
+            botao_veja_mais.click()
             time.sleep(3)
         
 except:
@@ -107,6 +116,7 @@ except:
 df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, descricao, data)), columns = ['Programa', 'Titulo', 'Descricao','Data'])
 print(df_noticias_lula['Titulo'])
 print(i)
+print(len(df_noticias_lula))
 
 #### to do / problemas ###
 #1- As vezes a descrição tem mais de um <span>, então seriam 2 xpaths: 
