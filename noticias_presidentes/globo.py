@@ -38,21 +38,23 @@ try:
 
     botao_veja_mais_xpath = "//section[@id='content']/div/div/div/a"
     #testando nas 60 primeiras notícias
-    for i in range(2,100):
+    for i in range(2,10):
 
         time.sleep(2)
 
         #Atualizando os xpaths para caminhar a lista de noticias
         programa_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/div"
         titulo_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/div"
-        descricao_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/p/span"
+        descricao_pt1_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/p/span"
+        descricao_pt2_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/p/span[2]"
         data_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/div[2]"
 
-        #XPATHS das notícias sem thumbnail (testando)
-        programa_1_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/div"
-        titulo_1_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div"
-        descricao_1_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/p/span"
-        data_1_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div[2]"                
+        #XPATHS das notícias sem thumbnail (testando) // stn = sem thumbnail
+        programa_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/div"
+        titulo_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div"
+        descricao_stn_pt1_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/p/span"
+        descricao_stn_pt2_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/p/span[2]"
+        data_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div[2]"                
         
         
         #tenta encontrar a notícia assumindo que ela possui o XPATH padrão com thumbnail
@@ -61,27 +63,49 @@ try:
         except:
             #se não encontrar, tenta achar a notícia com o XPATH sem thumbnail
             try:
-                programa.append(driver.find_element(By.XPATH,programa_1_xpath).text)
+                programa.append(driver.find_element(By.XPATH,programa_stn_xpath).text)
             except:
                 NoSuchElementException            
         NoSuchElementException  
+
 
 
         try:
             titulo.append(driver.find_element(By.XPATH,titulo_xpath).text)
         except:
             try:
-                titulo.append(driver.find_element(By.XPATH,titulo_1_xpath).text)
+                titulo.append(driver.find_element(By.XPATH,titulo_stn_xpath).text)
             except:
                 NoSuchElementException                    
         NoSuchElementException
 
         
-        try:
-            descricao.append(driver.find_element(By.XPATH,descricao_xpath).text)
+        descr_1 = ""  
+        descr_2 = ""                      
+        descr_completa = ""
+        try:      
+            descr_1 = driver.find_element(By.XPATH,descricao_pt1_xpath).text
+            descr_completa = descr_1      
+            #descricao.append(driver.find_element(By.XPATH,descricao_pt1_xpath).text)
+            try:                
+                descr_2 = driver.find_element(By.XPATH,descricao_pt2_xpath).text
+                descr_completa += " - " + descr_2
+                descricao.append(descr_completa)
+            except:
+                descricao.append(descr_completa)
+                NoSuchElementException              
         except:
             try:
-                descricao.append(driver.find_element(By.XPATH,descricao_1_xpath).text)
+                descr_1 = driver.find_element(By.XPATH,descricao_stn_pt1_xpath).text
+                descr_completa = descr_1
+                #descricao.append(driver.find_element(By.XPATH,descricao_stn_pt1_xpath).text)
+                try:                
+                    descr_2 = driver.find_element(By.XPATH,descricao_stn_pt2_xpath).text
+                    descr_completa += " - " + descr_2
+                    descricao.append(descr_completa)
+                except:
+                    descricao.append(descr_completa)
+                    NoSuchElementException                 
             except:
                 NoSuchElementException                    
         NoSuchElementException
@@ -91,7 +115,7 @@ try:
             data.append(driver.find_element(By.XPATH,data_xpath).text)
         except:  
             try:
-                data.append(driver.find_element(By.XPATH,data_1_xpath).text)
+                data.append(driver.find_element(By.XPATH,data_stn_xpath).text)
             except:
                 NoSuchElementException                      
         NoSuchElementException
@@ -114,13 +138,14 @@ except:
 
 
 df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, descricao, data)), columns = ['Programa', 'Titulo', 'Descricao','Data'])
-print(df_noticias_lula['Titulo'])
+#print(df_noticias_lula[['Titulo', 'Descricao']])
+print(df_noticias_lula['Descricao'][0])
 print(i)
 print(len(df_noticias_lula))
 
 #### to do / problemas ###
 #1- As vezes a descrição tem mais de um <span>, então seriam 2 xpaths: 
 #  //section[@id='content']/div/div/ul/li[i]/div[3]/a/p/span e //section[@id='content']/div/div/ul/li[i]/div[3]/a/p/span[2] 
-#2- Algumas notícias não têm thumbnail, então possuem uma div a menos. Os xpaths ficariam [...]/li[i]/div[2]/[...]
-#3- As datas que estiverem no formato "há X dias" ou "há X horas" devem ser colocadas no formato "dd/mm/aaaa HHhMM"
-#4- Entrar em cada notícia e buscar o texto do corpo da notícia
+# - As datas que estiverem no formato "há X dias" ou "há X horas" devem ser colocadas no formato "dd/mm/aaaa HHhMM"
+# - Entrar em cada notícia e buscar o texto do corpo da notícia
+# - Definir a função 
