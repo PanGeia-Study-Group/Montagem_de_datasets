@@ -148,4 +148,20 @@ print(len(df_noticias_lula))
 #  //section[@id='content']/div/div/ul/li[i]/div[3]/a/p/span e //section[@id='content']/div/div/ul/li[i]/div[3]/a/p/span[2] 
 # - As datas que estiverem no formato "há X dias" ou "há X horas" devem ser colocadas no formato "dd/mm/aaaa HHhMM"
 # - Entrar em cada notícia e buscar o texto do corpo da notícia
-# - Definir a função 
+# - Definir a função (url será "https://g1.globo.com/busca/?q=" + Keyword)
+
+'''
+Por existirem vários programas diferentes dentro do g1, existem vários formatos e variações na estrutura das notícias.
+- Notícias em texto:
+    Formato 1
+    -> Nome do programa/blog/seção: //*[@id="header-produto"]/h2/div/div/a
+    -> Nome do autor: /html/body/div[2]/main/div[4]/div[2]/p[1]  
+    -> Titulo do autor: /html/body/div[2]/main/div[4]/div[2]/p[2] 
+    -> Título da notícia: /html/body/div[2]/main/div[5]/div[1]/h1
+    -> Subtítulo da notícia: /html/body/div[2]/main/div[5]/div[2]/h2
+    -> Data da publicação: /html/body/div[2]/main/div[6]/div[1]/div/div/p[2]/time
+    -> Corpo da notícia: todas as div dentro da tag article /html/body/div[2]/main/div[8]/article
+
+    
+
+'''
