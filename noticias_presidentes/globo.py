@@ -7,6 +7,7 @@ from selenium.common.exceptions import NoSuchElementException, ElementClickInter
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.action_chains import ActionChains
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 
@@ -41,10 +42,10 @@ try:
     botao_veja_mais_xpath = "//section[@id='content']/div/div/div/a"
     #testando nas 60 primeiras notícias
     
-    for i in range(2,80):
+    for i in range(2,25):
 
         time.sleep(2)
-
+        '''
         #Atualizando os xpaths para caminhar a lista de noticias
         programa_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/div"
         titulo_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/div"
@@ -120,9 +121,30 @@ try:
             except:
                 NoSuchElementException                      
         NoSuchElementException
- 
-
+        '''
         
+        #TESTES
+        actions = ActionChains(driver)
+
+        xpath_teste = "//*[@id='content']/div/div/ul/li["+str(i)+"]"                          
+
+        try:
+            content = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "content"))
+            )  
+
+            noticia = driver.find_element(By.XPATH, xpath_teste)
+            actions.move_to_element(noticia)
+            actions.click()
+            actions.perform()
+            time.sleep(5)
+            print("aham\n")         
+
+        except:
+            NoSuchElementException
+               
+        time.sleep(2)
+
         #Como a página atualiza 15 notícias por vez, caso o i seja multiplo de 15, 
         # vou rolar para o fim da página para carregar mais notícias
         if(i%15 == 0 and i<60):
@@ -138,10 +160,6 @@ except:
     driver.quit()
     
 
-print(len(programa))
-print(len(titulo))
-print(len(descricao))
-print(len(data))
 #df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, descricao, data)), columns = ['Programa', 'Titulo', 'Descricao','Data'])
 #print(df_noticias_lula['Descricao'][0])
 #print(i)
@@ -156,23 +174,8 @@ print(len(data))
 # - Definir a função (url será "https://g1.globo.com/busca/?q=" + Keyword)
 
 '''
-Por existirem vários programas diferentes dentro do g1, existem vários formatos e variações na estrutura das notícias.
-- Notícias em texto:
-    Formato 1
-    -> Nome do programa/blog/seção: //*[@id="header-produto"]/h2/div/div/a
-    -> Nome do autor: /html/body/div[2]/main/div[4]/div[2]/p[1]  
-    -> Titulo do autor: /html/body/div[2]/main/div[4]/div[2]/p[2] 
-    -> Título da notícia: /html/body/div[2]/main/div[5]/div[1]/h1
-    -> Subtítulo da notícia: /html/body/div[2]/main/div[5]/div[2]/h2
-    -> Data da publicação: /html/body/div[2]/main/div[6]/div[1]/div/div/p[2]/time
-    -> Corpo da notícia: todas as div dentro da tag article /html/body/div[2]/main/div[8]/article
+Apagar quase tudo e começar do zero.
 
-    Formato 2
-    -> Nome do programa/blog/seção: //*[@id="header-produto"]/h2/div/div/a
-    -> Nome do autor: /html/body/div[2]/main/div[4]/div[2]/p[1]
-    -> Titulo do autor: /html/body/div[2]/main/div[4]/div[2]/p[2]
-    -> Título da notícia: /html/body/div[2]/main/div[5]/div[1]/h1
-    -> Subtítulo da notícia: /html/body/div[2]/main/div[5]/div[2]/h2
-    -> Data da publicação: /html/body/div[2]/main/div[6]/div[1]/div/div/p[2]/time
-    -> Corpo da notícia: /html/body/div[2]/main/div[7]/article
+Entrar em cada notícia e buscar os objetos por class name.
+
 '''
