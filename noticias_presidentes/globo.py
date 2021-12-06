@@ -23,12 +23,14 @@ programa = []
 titulo = []
 descricao = []
 data = []
+artigo_teste = ""
+
 
 try:
     content = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "content"))
     )
-    
+
    #XPATHS
    # Programa: //section[@id='content']/div/div/ul/li[2]/div[3]/div
    # Título: //section[@id='content']/div/div/ul/li[2]/div[3]/a/div
@@ -38,7 +40,8 @@ try:
 
     botao_veja_mais_xpath = "//section[@id='content']/div/div/div/a"
     #testando nas 60 primeiras notícias
-    for i in range(2,10):
+    
+    for i in range(2,80):
 
         time.sleep(2)
 
@@ -67,8 +70,6 @@ try:
             except:
                 NoSuchElementException            
         NoSuchElementException  
-
-
 
         try:
             titulo.append(driver.find_element(By.XPATH,titulo_xpath).text)
@@ -132,16 +133,20 @@ try:
             botao_veja_mais = driver.find_element(By.XPATH,botao_veja_mais_xpath)
             botao_veja_mais.click()
             time.sleep(3)
-        
+    
 except:
     driver.quit()
+    
 
+print(len(programa))
+print(len(titulo))
+print(len(descricao))
+print(len(data))
+#df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, descricao, data)), columns = ['Programa', 'Titulo', 'Descricao','Data'])
+#print(df_noticias_lula['Descricao'][0])
+#print(i)
+#print(len(df_noticias_lula))
 
-df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, descricao, data)), columns = ['Programa', 'Titulo', 'Descricao','Data'])
-#print(df_noticias_lula[['Titulo', 'Descricao']])
-print(df_noticias_lula['Descricao'][0])
-print(i)
-print(len(df_noticias_lula))
 
 #### to do / problemas ###
 #1- As vezes a descrição tem mais de um <span>, então seriam 2 xpaths: 
@@ -162,6 +167,12 @@ Por existirem vários programas diferentes dentro do g1, existem vários formato
     -> Data da publicação: /html/body/div[2]/main/div[6]/div[1]/div/div/p[2]/time
     -> Corpo da notícia: todas as div dentro da tag article /html/body/div[2]/main/div[8]/article
 
-    
-
+    Formato 2
+    -> Nome do programa/blog/seção: //*[@id="header-produto"]/h2/div/div/a
+    -> Nome do autor: /html/body/div[2]/main/div[4]/div[2]/p[1]
+    -> Titulo do autor: /html/body/div[2]/main/div[4]/div[2]/p[2]
+    -> Título da notícia: /html/body/div[2]/main/div[5]/div[1]/h1
+    -> Subtítulo da notícia: /html/body/div[2]/main/div[5]/div[2]/h2
+    -> Data da publicação: /html/body/div[2]/main/div[6]/div[1]/div/div/p[2]/time
+    -> Corpo da notícia: /html/body/div[2]/main/div[7]/article
 '''
