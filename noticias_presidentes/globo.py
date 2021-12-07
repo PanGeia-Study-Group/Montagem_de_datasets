@@ -24,136 +24,40 @@ programa = []
 titulo = []
 descricao = []
 data = []
-artigo_teste = ""
-
 
 try:
+    #Para garantir que o site carregou
     content = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "content"))
     )
 
-   #XPATHS
-   # Programa: //section[@id='content']/div/div/ul/li[2]/div[3]/div
-   # Título: //section[@id='content']/div/div/ul/li[2]/div[3]/a/div
-   # Descrição: //section[@id='content']/div/div/ul/li[2]/div[3]/a/p/span
-   # Data: //section[@id='content']/div/div/ul/li[2]/div[3]/a/div[2]
-   # Botão "veja mais": //section[@id='content']/div/div/div/a
-
     botao_veja_mais_xpath = "//section[@id='content']/div/div/div/a"
-    #testando nas 60 primeiras notícias
-    
-    for i in range(2,25):
+ 
+ 
+    for i in range(2,20):
 
-        time.sleep(2)
-        '''
-        #Atualizando os xpaths para caminhar a lista de noticias
-        programa_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/div"
-        titulo_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/div"
-        descricao_pt1_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/p/span"
-        descricao_pt2_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/p/span[2]"
-        data_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/div[2]"
-
-        #XPATHS das notícias sem thumbnail (testando) // stn = sem thumbnail
-        programa_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/div"
-        titulo_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div"
-        descricao_stn_pt1_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/p/span"
-        descricao_stn_pt2_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/p/span[2]"
-        data_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div[2]"                
-        
-        
-        #tenta encontrar a notícia assumindo que ela possui o XPATH padrão com thumbnail
+        xpath_teste = "//*[@id='content']/div/div/ul/li["+str(i)+"]" 
+        time.sleep(2)           
+                              
         try:
-            programa.append(driver.find_element(By.XPATH,programa_xpath).text) 
-        except:
-            #se não encontrar, tenta achar a notícia com o XPATH sem thumbnail
-            try:
-                programa.append(driver.find_element(By.XPATH,programa_stn_xpath).text)
-            except:
-                NoSuchElementException            
-        NoSuchElementException  
-
-        try:
-            titulo.append(driver.find_element(By.XPATH,titulo_xpath).text)
-        except:
-            try:
-                titulo.append(driver.find_element(By.XPATH,titulo_stn_xpath).text)
-            except:
-                NoSuchElementException                    
-        NoSuchElementException
-
-        
-        descr_1 = ""  
-        descr_2 = ""                      
-        descr_completa = ""
-        try:      
-            descr_1 = driver.find_element(By.XPATH,descricao_pt1_xpath).text
-            descr_completa = descr_1      
-            #descricao.append(driver.find_element(By.XPATH,descricao_pt1_xpath).text)
-            try:                
-                descr_2 = driver.find_element(By.XPATH,descricao_pt2_xpath).text
-                descr_completa += " - " + descr_2
-                descricao.append(descr_completa)
-            except:
-                descricao.append(descr_completa)
-                NoSuchElementException              
-        except:
-            try:
-                descr_1 = driver.find_element(By.XPATH,descricao_stn_pt1_xpath).text
-                descr_completa = descr_1
-                #descricao.append(driver.find_element(By.XPATH,descricao_stn_pt1_xpath).text)
-                try:                
-                    descr_2 = driver.find_element(By.XPATH,descricao_stn_pt2_xpath).text
-                    descr_completa += " - " + descr_2
-                    descricao.append(descr_completa)
-                except:
-                    descricao.append(descr_completa)
-                    NoSuchElementException                 
-            except:
-                NoSuchElementException                    
-        NoSuchElementException
-
-
-        try:
-            data.append(driver.find_element(By.XPATH,data_xpath).text)
-        except:  
-            try:
-                data.append(driver.find_element(By.XPATH,data_stn_xpath).text)
-            except:
-                NoSuchElementException                      
-        NoSuchElementException
-        '''
-        
-        #TESTES
-        actions = ActionChains(driver)
-
-        xpath_teste = "//*[@id='content']/div/div/ul/li["+str(i)+"]"                          
-
-        try:
-            content = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "content"))
-            )  
-
-            noticia = driver.find_element(By.XPATH, xpath_teste)
-            actions.move_to_element(noticia)
-            actions.click()
-            actions.perform()
+            driver.find_element(By.XPATH, xpath_teste).click()        
             time.sleep(5)
-            print("aham\n")         
-
+            print("Noticia:" + str(i-1))
+            driver.back()      
         except:
+            print("Nada")
             NoSuchElementException
-               
+                       
         time.sleep(2)
 
         #Como a página atualiza 15 notícias por vez, caso o i seja multiplo de 15, 
-        # vou rolar para o fim da página para carregar mais notícias
+        # vou rolar para o fim da página para carregar mais notícias ou clicar no botão "Veja Mais"
         if(i%15 == 0 and i<60):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(3)
         elif(i%15 == 0 and i>=60):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")            
-            botao_veja_mais = driver.find_element(By.XPATH,botao_veja_mais_xpath)
-            botao_veja_mais.click()
+            driver.find_element(By.XPATH,botao_veja_mais_xpath).click()
             time.sleep(3)
     
 except:
