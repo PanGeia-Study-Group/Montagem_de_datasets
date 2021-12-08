@@ -288,7 +288,7 @@ def main ():
                             'data_noticia': dado['data_manchete'], 
                             'corpo_noticia': corpo_noticia})
         if contador_noticias%50 == 0:
-            ('---- EXTRAÇÃO CORPO NOTÍCIA ----')
+            print('---- EXTRAÇÃO CORPO NOTÍCIA ----')
             df = salva_dados(todos_dados, df, path_to_save_csv)
         contador_noticias+=1
 
@@ -298,4 +298,6 @@ def main ():
 
 if __name__ == "__main__":
     main()
+ 
+
  
