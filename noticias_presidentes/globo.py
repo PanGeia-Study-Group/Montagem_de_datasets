@@ -22,8 +22,17 @@ driver.get("https://g1.globo.com/busca/?q=presidente+lula")
 
 programa = []
 titulo = []
-descricao = []
+subtitulo = []
 data = []
+corpo = []
+'''
+Nomes das classes:
+Título: class="content-head__title"
+Subtítulo: class="content-head__subtitle"
+Data: class="content-publication-data__updated"
+Corpo da notícia: class="mc-article-body"
+'''
+
 
 try:
     #Para garantir que o site carregou
@@ -33,16 +42,62 @@ try:
 
     botao_veja_mais_xpath = "//section[@id='content']/div/div/div/a"
  
- 
+
     for i in range(2,20):
 
         xpath_teste = "//*[@id='content']/div/div/ul/li["+str(i)+"]" 
-        time.sleep(2)           
+        programa_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/div"
+        titulo_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/div"
+        programa_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/div"
+        titulo_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div"
+        time.sleep(2) 
+
+                 
                               
+        #Pegar título e programa antes de entrar na notícia
+        #Dentro da notícia, pegar subtítulo, data e o que mais tiver (autor? mídia? duração do vídeo? etc)  
+        #Mudar lógica dos Try/Excepts: o append deve vir depois. Primeiro armazena os objetos em variáveis                            
         try:
-            driver.find_element(By.XPATH, xpath_teste).click()        
+            noticia = driver.find_element(By.XPATH, xpath_teste)
+            driver.execute_script("arguments[0].scrollIntoView();", noticia)
+
+            #tenta encontrar a notícia assumindo que ela possui o XPATH padrão com thumbnail
+            try:
+                programa.append(driver.find_element(By.XPATH,programa_xpath).text) 
+            except:
+                #se não encontrar, tenta achar a notícia com o XPATH sem thumbnail
+                try:
+                    programa.append(driver.find_element(By.XPATH,programa_stn_xpath).text)
+                except:
+                    NoSuchElementException            
+            NoSuchElementException  
+
+            try:
+                titulo.append(driver.find_element(By.XPATH,titulo_xpath).text)
+            except:
+                try:
+                    titulo.append(driver.find_element(By.XPATH,titulo_stn_xpath).text)
+                except:
+                    NoSuchElementException                    
+            NoSuchElementException          
+
+            noticia.click()
             time.sleep(5)
-            print("Noticia:" + str(i-1))
+
+            try:
+                subtitulo.append(driver.find_element(By.CLASS_NAME, "content-head__subtitle").text)
+            except:
+                subtitulo.append('-1')
+                NoSuchElementException
+
+            try:
+                corpo.append(driver.find_element(By.CLASS_NAME, "mc-article-body").text)
+            except:
+                corpo.append('-1')
+                NoSuchElementException
+
+
+            print("Noticia: " + str(i-1))
             driver.back()      
         except:
             print("Nada")
@@ -64,22 +119,13 @@ except:
     driver.quit()
     
 
-#df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, descricao, data)), columns = ['Programa', 'Titulo', 'Descricao','Data'])
+df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, subtitulo, data, corpo)), columns = ['Programa', 'Titulo', 'Subtitulo','Data', 'Corpo'])
 #print(df_noticias_lula['Descricao'][0])
 #print(i)
-#print(len(df_noticias_lula))
+print(df_noticias_lula)
 
 
-#### to do / problemas ###
-#1- As vezes a descrição tem mais de um <span>, então seriam 2 xpaths: 
-#  //section[@id='content']/div/div/ul/li[i]/div[3]/a/p/span e //section[@id='content']/div/div/ul/li[i]/div[3]/a/p/span[2] 
+#### to do / problemas ### 
 # - As datas que estiverem no formato "há X dias" ou "há X horas" devem ser colocadas no formato "dd/mm/aaaa HHhMM"
 # - Entrar em cada notícia e buscar o texto do corpo da notícia
 # - Definir a função (url será "https://g1.globo.com/busca/?q=" + Keyword)
-
-'''
-Apagar quase tudo e começar do zero.
-
-Entrar em cada notícia e buscar os objetos por class name.
-
-'''
