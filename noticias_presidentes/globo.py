@@ -20,15 +20,11 @@ driver = webdriver.Chrome(service=ser, options=op)
 #Captando notícias com a tag "presidente lula"
 driver.get("https://g1.globo.com/busca/?q=presidente+lula")
 
-programa = []
-titulo = []
-subtitulo = []
-data = []
-corpo = []
+noticias = []
 '''
 Nomes das classes:
 Título: class="content-head__title"
-Subtítulo: class="content-head__subtitle"
+Subtítulo: class="content-head__subtitle" // class="playkit-video-info__ep-description playkit-video-info__ep-description--show-all"
 Data: class="content-publication-data__updated"
 Corpo da notícia: class="mc-article-body"
 '''
@@ -43,62 +39,104 @@ try:
     botao_veja_mais_xpath = "//section[@id='content']/div/div/div/a"
  
 
-    for i in range(2,20):
+    for i in range(2,10):
 
-        xpath_teste = "//*[@id='content']/div/div/ul/li["+str(i)+"]" 
+        xpath_lista = "//*[@id='content']/div/div/ul/li["+str(i)+"]" 
+
+        #XPATHS com thumbnail
         programa_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/div"
         titulo_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/div"
+        data_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/a/div[2]"
+
+        #XPATHS sem thumbnail
         programa_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/div"
         titulo_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div"
+        data_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div[2]"                
+        
         time.sleep(2) 
-
-                 
+   
                               
         #Pegar título e programa antes de entrar na notícia
-        #Dentro da notícia, pegar subtítulo, data e o que mais tiver (autor? mídia? duração do vídeo? etc)  
+        #Dentro da notícia, pegar subtítulo, data, corpo e o que mais tiver (autor? mídia? duração do vídeo? etc)  
         #Mudar lógica dos Try/Excepts: o append deve vir depois. Primeiro armazena os objetos em variáveis                            
         try:
-            noticia = driver.find_element(By.XPATH, xpath_teste)
+            noticia = driver.find_element(By.XPATH, xpath_lista)
             driver.execute_script("arguments[0].scrollIntoView();", noticia)
 
             #tenta encontrar a notícia assumindo que ela possui o XPATH padrão com thumbnail
             try:
-                programa.append(driver.find_element(By.XPATH,programa_xpath).text) 
+                programa = driver.find_element(By.XPATH,programa_xpath).text
             except:
                 #se não encontrar, tenta achar a notícia com o XPATH sem thumbnail
                 try:
-                    programa.append(driver.find_element(By.XPATH,programa_stn_xpath).text)
+                    programa = driver.find_element(By.XPATH,programa_stn_xpath).text
                 except:
+                    programa = -1
                     NoSuchElementException            
             NoSuchElementException  
 
             try:
-                titulo.append(driver.find_element(By.XPATH,titulo_xpath).text)
+                titulo = driver.find_element(By.XPATH,titulo_xpath).text
             except:
                 try:
-                    titulo.append(driver.find_element(By.XPATH,titulo_stn_xpath).text)
+                    titulo = driver.find_element(By.XPATH,titulo_stn_xpath).text
                 except:
+                    titulo = -1
                     NoSuchElementException                    
-            NoSuchElementException          
+            NoSuchElementException        
 
+            try:
+                data = driver.find_element(By.XPATH,data_xpath).text
+            except:  
+                try:
+                    data = driver.find_element(By.XPATH,data_stn_xpath).text
+                except:
+                    data = -1
+                    NoSuchElementException                      
+            NoSuchElementException  
+
+            #Abrindo a notícia
             noticia.click()
             time.sleep(5)
 
             try:
-                subtitulo.append(driver.find_element(By.CLASS_NAME, "content-head__subtitle").text)
+                subtitulo = driver.find_element(By.CLASS_NAME, "content-head__subtitle").text
             except:
-                subtitulo.append('-1')
+                try: 
+                    subtitulo = driver.find_element(By.CLASS_NAME, "playkit-video-info__ep-description playkit-video-info__ep-description--show-all").text
+                except:
+                    subtitulo = -1
+                    NoSuchElementException                
+            NoSuchElementException
+
+            try:
+                corpo = driver.find_element(By.CLASS_NAME, "mc-article-body").text
+            except:
+                corpo = -1
                 NoSuchElementException
 
             try:
-                corpo.append(driver.find_element(By.CLASS_NAME, "mc-article-body").text)
+                url = driver.current_url
             except:
-                corpo.append('-1')
-                NoSuchElementException
+                url = -1
 
 
             print("Noticia: " + str(i-1))
+            #print(url)
+            #print(programa)  
+            #print(titulo)
+            #print(subtitulo)
+            #print(data)
+            #print(corpo)
             driver.back()      
+
+            noticias.append({
+                "Programa" : programa,
+                "Titulo" : titulo,
+                "Subtitulo" : subtitulo,
+                "Corpo" : corpo,
+                "Data" : data
+            })
         except:
             print("Nada")
             NoSuchElementException
@@ -115,14 +153,16 @@ try:
             driver.find_element(By.XPATH,botao_veja_mais_xpath).click()
             time.sleep(3)
     
+    print(pd.DataFrame(noticias))
+
 except:
     driver.quit()
     
 
-df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, subtitulo, data, corpo)), columns = ['Programa', 'Titulo', 'Subtitulo','Data', 'Corpo'])
+#df_noticias_lula = pd.DataFrame(list(zip(programa, titulo, subtitulo, data, corpo)), columns = ['Programa', 'Titulo', 'Subtitulo','Data', 'Corpo'])
 #print(df_noticias_lula['Descricao'][0])
 #print(i)
-print(df_noticias_lula)
+#print(df_noticias_lula)
 
 
 #### to do / problemas ### 
