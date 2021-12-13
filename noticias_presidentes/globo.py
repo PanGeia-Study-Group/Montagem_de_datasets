@@ -38,11 +38,10 @@ def noticias_g1(keyword, tamanho):
             EC.presence_of_element_located((By.ID, "content"))
         )
 
-        botao_veja_mais_xpath = "//section[@id='content']/div/div/div/a"
-    
+        botao_veja_mais_xpath = "//section[@id='content']/div/div/div/a"    
 
         for i in range(2,tamanho+2):
-
+            
             xpath_lista = "//*[@id='content']/div/div/ul/li["+str(i)+"]" 
 
             #XPATHS com thumbnail
@@ -55,12 +54,35 @@ def noticias_g1(keyword, tamanho):
             titulo_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div"
             data_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div[2]"                
             
-            time.sleep(2) 
-    
+            time.sleep(2)     
+            
+            try:
+                content = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, xpath_lista))
+                )
+            except:
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")            
+                driver.find_element(By.XPATH,botao_veja_mais_xpath).click()
+                time.sleep(2)  
+
+            #Como a página atualiza 15 notícias por vez, caso o i seja multiplo de 15, 
+            # vou rolar para o fim da página para carregar mais notícias ou clicar no botão "Veja Mais"
+
+            if(i%15 == 0 and i<60):
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                print('XPATH: ' + xpath_lista)
+                print("i = " + str(i) + ", scrollou até o fim da página")
+                time.sleep(3)
+            elif(i%15 == 0 and i>=60):
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")            
+                driver.find_element(By.XPATH,botao_veja_mais_xpath).click()
+                print('XPATH: ' + xpath_lista)
+                print("i = " + str(i) + ", scrollou até o fim da página e clicou no veja mais")                
+                time.sleep(3)      
+
                                 
-            #Pegar título e programa antes de entrar na notícia
-            #Dentro da notícia, pegar subtítulo, data, corpo e o que mais tiver (autor? mídia? duração do vídeo? etc)  
-            #Mudar lógica dos Try/Excepts: o append deve vir depois. Primeiro armazena os objetos em variáveis                            
+            #Pegar título e programa fora da notícia
+            #Dentro da notícia, pegar subtítulo, data, corpo e o que mais tiver (autor? mídia? duração do vídeo? etc)                      
             try:
                 noticia = driver.find_element(By.XPATH, xpath_lista)
                 driver.execute_script("arguments[0].scrollIntoView();", noticia)
@@ -124,12 +146,6 @@ def noticias_g1(keyword, tamanho):
 
 
                 print("Noticia " + str(i-1) + " sucesso!")
-                #print(url)
-                #print(programa)  
-                #print(titulo)
-                #print(subtitulo)
-                #print(data)
-                #print(corpo)
                 driver.back()      
 
                 noticias.append({
@@ -143,17 +159,7 @@ def noticias_g1(keyword, tamanho):
                 print("Noticia " + str(i-1) + " falha :(")
                 NoSuchElementException
                         
-            time.sleep(2)
-
-            #Como a página atualiza 15 notícias por vez, caso o i seja multiplo de 15, 
-            # vou rolar para o fim da página para carregar mais notícias ou clicar no botão "Veja Mais"
-            if(i%15 == 0 and i<60):
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(3)
-            elif(i%15 == 0 and i>=60):
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")            
-                driver.find_element(By.XPATH,botao_veja_mais_xpath).click()
-                time.sleep(3)           
+            time.sleep(2)     
 
     except:
         driver.quit()
@@ -163,7 +169,7 @@ def noticias_g1(keyword, tamanho):
 
 
 #print(noticias_g1("presidente lula", 10))
-print(noticias_g1("sergio moro", 50))
+print(noticias_g1("doria", 50))
 #print(df_noticias_lula)
 
 
