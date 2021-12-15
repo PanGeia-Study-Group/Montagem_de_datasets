@@ -41,8 +41,8 @@ def noticias_g1(keyword, tamanho):
         botao_veja_mais_xpath = "//section[@id='content']/div/div/div/a"    
 
         for i in range(2,tamanho+2):
-            
-            xpath_lista = "//*[@id='content']/div/div/ul/li["+str(i)+"]" 
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            xpath_lista = "//*[@id='content']/div/div/ul/li["+ str(i) +"]" 
 
             #XPATHS com thumbnail
             programa_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[3]/div"
@@ -54,35 +54,11 @@ def noticias_g1(keyword, tamanho):
             titulo_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div"
             data_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div[2]"                
             
-            time.sleep(2)     
-            
-            try:
-                content = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, xpath_lista))
-                )
-            except:
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")            
-                driver.find_element(By.XPATH,botao_veja_mais_xpath).click()
-                time.sleep(2)  
-
-            #Como a página atualiza 15 notícias por vez, caso o i seja multiplo de 15, 
-            # vou rolar para o fim da página para carregar mais notícias ou clicar no botão "Veja Mais"
-
-            if(i%15 == 0 and i<60):
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                print('XPATH: ' + xpath_lista)
-                print("i = " + str(i) + ", scrollou até o fim da página")
-                time.sleep(3)
-            elif(i%15 == 0 and i>=60):
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")            
-                driver.find_element(By.XPATH,botao_veja_mais_xpath).click()
-                print('XPATH: ' + xpath_lista)
-                print("i = " + str(i) + ", scrollou até o fim da página e clicou no veja mais")                
-                time.sleep(3)      
-
+            time.sleep(2) 
                                 
             #Pegar título e programa fora da notícia
-            #Dentro da notícia, pegar subtítulo, data, corpo e o que mais tiver (autor? mídia? duração do vídeo? etc)                      
+            #Dentro da notícia, pegar subtítulo, data, corpo e o que mais tiver (autor? mídia? duração do vídeo? etc)    
+
             try:
                 noticia = driver.find_element(By.XPATH, xpath_lista)
                 driver.execute_script("arguments[0].scrollIntoView();", noticia)
@@ -108,6 +84,8 @@ def noticias_g1(keyword, tamanho):
                         titulo = -1
                         NoSuchElementException                    
                 NoSuchElementException        
+
+                time.sleep(2) 
 
                 try:
                     data = driver.find_element(By.XPATH,data_xpath).text
@@ -135,9 +113,9 @@ def noticias_g1(keyword, tamanho):
 
                 try:
                     corpo = driver.find_element(By.CLASS_NAME, "mc-article-body").text
-                except:
+                except:                    
                     corpo = -1
-                    NoSuchElementException
+                NoSuchElementException
 
                 try:
                     url = driver.current_url
@@ -146,20 +124,36 @@ def noticias_g1(keyword, tamanho):
 
 
                 print("Noticia " + str(i-1) + " sucesso!")
-                driver.back()      
+                driver.back() 
 
                 noticias.append({
+                    "Url" : url,
                     "Programa" : programa,
                     "Titulo" : titulo,
                     "Subtitulo" : subtitulo,
                     "Corpo" : corpo,
-                    "Data" : data
+                    "Data" : data                    
                 })
             except:
-                print("Noticia " + str(i-1) + " falha :(")
+                print("Noticia " + str(i-1) + " falha :(")                
                 NoSuchElementException
                         
-            time.sleep(2)     
+            time.sleep(2)
+                                    
+            #Como a página atualiza 15 notícias por vez, caso o i seja multiplo de 15, 
+            # vou rolar para o fim da página para carregar mais notícias ou clicar no botão "Veja Mais"
+
+            if(i%15 == 0 and i<60):
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                print('XPATH: ' + xpath_lista)
+                print("i = " + str(i) + ", scrollou até o fim da página")
+                time.sleep(3)
+            elif(i%15 == 0 and i>=60):
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")            
+                driver.find_element(By.XPATH,botao_veja_mais_xpath).click()
+                print('XPATH: ' + xpath_lista)
+                print("i = " + str(i) + ", scrollou até o fim da página e clicou no veja mais")                
+                time.sleep(3)           
 
     except:
         driver.quit()
@@ -169,10 +163,9 @@ def noticias_g1(keyword, tamanho):
 
 
 #print(noticias_g1("presidente lula", 10))
-print(noticias_g1("doria", 50))
+print(noticias_g1("presidente lula", 70))
 #print(df_noticias_lula)
 
 
 #### to do / problemas ### 
 # - As datas que estiverem no formato "há X dias" ou "há X horas" devem ser colocadas no formato "dd/mm/aaaa HHhMM"
-# - Definir a função (url será "https://g1.globo.com/busca/?q=" + Keyword)
