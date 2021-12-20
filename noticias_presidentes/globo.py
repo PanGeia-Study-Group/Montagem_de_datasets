@@ -168,7 +168,7 @@ def noticias_g1(keyword, tamanho):
 
 
 #print(noticias_g1("presidente lula", 10))
-print(noticias_g1("presidente lula", 70))
+print(noticias_g1("presidente lula", 1))
 #print(df_noticias_lula)
 
 
