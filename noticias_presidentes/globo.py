@@ -40,8 +40,9 @@ def noticias_g1(keyword, tamanho):
 
         botao_veja_mais_xpath = "//section[@id='content']/div/div/div/a"    
 
-        for i in range(2,tamanho+2):           
-            time.sleep(4)
+        for i in range(2,tamanho+2):
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(2)
             xpath_lista = "//*[@id='content']/div/div/ul/li["+ str(i) +"]" 
 
             #XPATHS das notícias com thumbnail
@@ -53,115 +54,111 @@ def noticias_g1(keyword, tamanho):
             programa_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/div"
             titulo_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div"
             data_stn_xpath = "//section[@id='content']/div/div/ul/li["+ str(i) +"]/div[2]/a/div[2]"                
-                            
-            #Pegar título e programa fora da notícia
-            #Dentro da notícia, pegar subtítulo, data, corpo e o que mais tiver (autor? mídia? duração do vídeo? etc)    
-            try:
-                noticia = driver.find_element(By.XPATH, xpath_lista) #buscando o elemento da notícia i
-                driver.execute_script("arguments[0].scrollIntoView();", noticia) #scrollando até a notícia
-                time.sleep(2)
-                print("Captando dados da notícia " + str(i-1) + "/" + str(tamanho))
+            
+            time.sleep(2) 
+                                
+            collected_successfully = False
+            
+            while not collected_successfully:
 
-                #tenta encontrar a notícia assumindo que ela possui o XPATH padrão com thumbnail
+                #Pegar título e programa fora da notícia
+                #Dentro da notícia, pegar subtítulo, data, corpo e o que mais tiver (autor? mídia? duração do vídeo? etc)    
                 try:
-                    programa = driver.find_element(By.XPATH,programa_xpath).text
-                except:
-                    #se não encontrar, tenta achar a notícia com o XPATH sem thumbnail
+                    noticia = driver.find_element(By.XPATH, xpath_lista) #buscando o elemento da notícia i
+                    driver.execute_script("arguments[0].scrollIntoView();", noticia) #scrollando até a notícia
+                    time.sleep(2)
+                    print("Captando dados da notícia " + str(i-1) + "/" + str(tamanho))
+
+                    #tenta encontrar a notícia assumindo que ela possui o XPATH padrão com thumbnail
                     try:
-                        programa = driver.find_element(By.XPATH,programa_stn_xpath).text
+                        programa = driver.find_element(By.XPATH,programa_xpath).text
                     except:
-                        programa = -1
-                        NoSuchElementException            
-                NoSuchElementException  
+                        #se não encontrar, tenta achar a notícia com o XPATH sem thumbnail
+                        try:
+                            programa = driver.find_element(By.XPATH,programa_stn_xpath).text
+                        except:
+                            programa = -1
+                            NoSuchElementException            
+                    NoSuchElementException  
 
-                try:
-                    titulo = driver.find_element(By.XPATH,titulo_xpath).text
-                except:
                     try:
-                        titulo = driver.find_element(By.XPATH,titulo_stn_xpath).text
+                        titulo = driver.find_element(By.XPATH,titulo_xpath).text
                     except:
-                        titulo = -1
-                        NoSuchElementException                    
-                NoSuchElementException        
+                        try:
+                            titulo = driver.find_element(By.XPATH,titulo_stn_xpath).text
+                        except:
+                            titulo = -1
+                            NoSuchElementException                    
+                    NoSuchElementException        
 
-                try:
-                    data = driver.find_element(By.XPATH,data_xpath).text
-                except:  
                     try:
-                        data = driver.find_element(By.XPATH,data_stn_xpath).text
+                        data = driver.find_element(By.XPATH,data_xpath).text
+                    except:  
+                        try:
+                            data = driver.find_element(By.XPATH,data_stn_xpath).text
+                        except:
+                            data = -1
+                            NoSuchElementException                      
+                    NoSuchElementException  
+
+                    noticia.click() #Abrindo a notícia               
+                    time.sleep(5) #Esperando ela carregar
+
+                    try:
+                        subtitulo = driver.find_element(By.CLASS_NAME, "content-head__subtitle").text
                     except:
-                        data = -1
-                        NoSuchElementException                      
-                NoSuchElementException  
+                        try: 
+                            subtitulo = driver.find_element(By.CLASS_NAME, "playkit-video-info__ep-description playkit-video-info__ep-description--show-all").text
+                        except:
+                            subtitulo = -1
+                            NoSuchElementException                
+                    NoSuchElementException
 
-                noticia.click() #Abrindo a notícia               
-                time.sleep(5) #Esperando ela carregar
+                    try:
+                        corpo = driver.find_element(By.CLASS_NAME, "mc-article-body").text
+                    except:                    
+                        corpo = -1
+                    NoSuchElementException
 
-                try:
-                    subtitulo = driver.find_element(By.CLASS_NAME, "content-head__subtitle").text
-                except:
-                    try: 
-                        subtitulo = driver.find_element(By.CLASS_NAME, "playkit-video-info__ep-description playkit-video-info__ep-description--show-all").text
+                    try:
+                        url = driver.current_url
                     except:
-                        subtitulo = -1
-                        NoSuchElementException                
-                NoSuchElementException
+                        url = -1
 
-                try:
-                    corpo = driver.find_element(By.CLASS_NAME, "mc-article-body").text
-                except:                    
-                    corpo = -1
-                NoSuchElementException
 
-                try:
-                    url = driver.current_url
+                    print("Noticia " + str(i-1) + " sucesso!")
+                    collected_successfully = True
+                    driver.back() 
+                    time.sleep(4)
+
+                    noticias.append({
+                        "Url" : url,
+                        "Programa" : programa,
+                        "Titulo" : titulo,
+                        "Subtitulo" : subtitulo,
+                        "Corpo" : corpo,
+                        "Data" : data                    
+                    })
                 except:
-                    url = -1
-
-
-                print("Noticia " + str(i-1) + " sucesso!")
-                collected_successfully = True
-                driver.back() 
-                time.sleep(4)
-
-                noticias.append({
-                    "Url" : url,
-                    "Programa" : programa,
-                    "Titulo" : titulo,
-                    "Subtitulo" : subtitulo,
-                    "Corpo" : corpo,
-                    "Data" : data                    
-                })
-            except:
-                print("Noticia " + str(i-1) + " falha :(")                
-                time.sleep(4)
+                    print("Noticia " + str(i-1) + " falha :(")                
+                    time.sleep(4)
                         
             time.sleep(2)
                                     
             #Como a página atualiza 15 notícias por vez, caso o i seja multiplo de 15, 
             # vou rolar para o fim da página para carregar mais notícias ou clicar no botão "Veja Mais"
 
-            if((i+5)%15 == 0 and i<60):
-                try:
-                    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                    print('XPATH: ' + xpath_lista)
-                    print("i = " + str(i) + ", scrollou até o fim da página")
-                    time.sleep(3)
-                except:
-                    print("Scroll falhou!")
-                    NoSuchElementException
-            elif((i+5)%15 == 0 and i>=60):
-                try:
-                    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")                               
-                    botao = driver.find_element(By.XPATH,botao_veja_mais_xpath)
-                    driver.execute_script("arguments[0].scrollIntoView();", botao) 
-                    botao.click()
-                    print('XPATH: ' + xpath_lista)
-                    print("i = " + str(i) + ", scrollou até o fim da página e clicou no veja mais")                
-                    time.sleep(3)   
-                except:
-                    print("Botao veja mais falhou!")
-                    NoSuchElementException
+            if(i%15 == 0 and i<60):
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                print('XPATH: ' + xpath_lista)
+                print("i = " + str(i) + ", scrollou até o fim da página")
+                time.sleep(3)
+            elif(i%15 == 0 and i>=60):
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")            
+                driver.find_element(By.XPATH,botao_veja_mais_xpath).click()
+                print('XPATH: ' + xpath_lista)
+                print("i = " + str(i) + ", scrollou até o fim da página e clicou no veja mais")                
+                time.sleep(3)           
 
     except:
         driver.quit()
@@ -169,7 +166,11 @@ def noticias_g1(keyword, tamanho):
     return pd.DataFrame(noticias)
 
 
-print(noticias_g1("presidente lula", 70))
+
+#print(noticias_g1("presidente lula", 10))
+print(noticias_g1("presidente lula", 1))
+#print(df_noticias_lula)
+
 
 #### to do / problemas ### 
 # - As datas que estiverem no formato "há X dias" ou "há X horas" devem ser colocadas no formato "dd/mm/aaaa HHhMM"
