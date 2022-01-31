@@ -20,6 +20,8 @@ Data: class="content-publication-data__updated"
 Corpo da notícia: class="mc-article-body"
 '''
 
+#retomada 31/01/22
+
 def noticias_g1(keyword, tamanho):
     ser = Service("C:\Program Files (x86)\chromedriver.exe")
     op = webdriver.ChromeOptions()
